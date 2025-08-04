@@ -3,7 +3,7 @@ FROM ubuntu:noble
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y curl wget gpg ca-certificate xsltproc git
+    apt-get install -y curl wget gpg ca-certificates xsltproc git
 
 RUN useradd --create-home appuser
 
