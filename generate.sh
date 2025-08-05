@@ -42,7 +42,6 @@ while IFS=';' read -r id_line title_line status_line; do
     continue
   }
   i=$((i + 1))
-  echo "immer noch 2"
   echo "✅ [$i] ID=$id_line TITLE=$title_line STATUS=$status_line"
   echo "DEBUG [$i/$TOTAL_PAGES] ID_LINE='$id_line' TITLE_LINE='$title_line' STATUS_LINE='$status_line'"
 
@@ -51,6 +50,13 @@ while IFS=';' read -r id_line title_line status_line; do
   SAFE_TITLE=$(echo "${PAGE_TITLE:-Untitled_$PAGE_ID}" | tr ' /:' '_' | tr -cd '[:alnum:]_-')
   TEMP_XML="$TMP_DIR/$SAFE_TITLE.xml"
   MD_FILE="$MD_DIR/$SAFE_TITLE.md"
+
+
+  # Skip deleted pages
+  [[ "$status_line" == "STATUS=deleted" ]] && { echo "⏭️  Skipping deleted page: $PAGE_TITLE"; continue; }
+
+  # Skip draft pages
+  [[ "$status_line" == "STATUS=draft" ]] && { echo "⏭️  Skipping raft page: PAGE_TITLE"; continue; }
 
   set +e
   {
