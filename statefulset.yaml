@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: jira-client
+  name: jira-client
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: jira-client
+  serviceName: jira-client
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: jira-client
+    spec:
+      containers:
+      - args:
+        - tail -f /dev/null
+        command:
+        - sh
+        - -c
+        image: ghcr.io/eumel8/jira-markdown/jira-markdown:dev
+        imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command:
+            - ls
+            - /tmp
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: jira-client
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+            - CAP_NET_RAW
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 1000
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /home/ubuntu
+          name: workdir
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups:
+        - 1000
+      serviceAccount: jira-client
+      serviceAccountName: jira-client
+      terminationGracePeriodSeconds: 1
+      volumes:
+      - emptyDir:
+          sizeLimit: 1000Mi
+        name: workdir
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 500Mi
+        name: tmp
+      - name: data
+        persistentVolumeClaim:
+          claimName: jira-data
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
