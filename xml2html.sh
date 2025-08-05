@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENTITY_FILE="confluence_tmp/entities.xml"
+ENTITY_FILE="entities.xml"
 OUT_DIR="html_output"
 mkdir -p "$OUT_DIR"
 
