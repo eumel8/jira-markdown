@@ -78,8 +78,6 @@ spec:
           type: RuntimeDefault
         supplementalGroups:
         - 1000
-      serviceAccount: jira-client
-      serviceAccountName: jira-client
       terminationGracePeriodSeconds: 1
       volumes:
       - emptyDir:
